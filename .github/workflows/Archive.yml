@@ -1,0 +1,47 @@
+name: Archive Workflow
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  job_1:
+      name: Archive File on merge to master
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+
+        - name: Build
+          env:
+            KEYSTORE_BASE64: ${{ secrets.REPOSITORY_KEYSTORE_64 }}
+            KEYSTORE_PASSWORD: ${{ secrets.REPOSITORY_KEYSTORE_PASSWORD }}
+            ALIAS: ${{ secrets.REPOSITORY_ALIAS }}
+            ALIAS_PASSWORD: ${{ secrets.REPOSITORY_ALIAS_PASSWORD }}
+          run: |
+            # create variables
+            KEYSTORE_FILE=$RUNNER_TEMP/keystore.jks
+            # import data from secret(s)
+            echo -n "$KEYSTORE_BASE64" | base64 --decode > $KEYSTORE_FILE
+            # ktlint
+            # ./gradlew ktlint
+            # build and sign the app
+            ./gradlew assembleRelease -Pandroid.injected.signing.store.file=$KEYSTORE_FILE -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD -Pandroid.injected.signing.key.alias=$ALIAS -Pandroid.injected.signing.key.password=$ALIAS_PASSWORD
+
+        - name: Upload Artifact
+          uses: actions/upload-artifact@v2
+          with:
+            name: DemoAPK
+            path: ./app/build/outputs/apk/release/app-release.apk
+            retention-days: 1
+
+        - name: upload artefact to App Center
+          uses: wzieba/AppCenter-Github-Action@v1
+          with:
+            appName: mobilecoe-uq7x/Demo-CICD_Android
+            token: ${{secrets.APP_CENTER_TOKEN}}
+            group: Notify on Release
+            file: ./app/build/outputs/apk/release/app-release.apk
+            notifyTesters: true
+            debug: false
