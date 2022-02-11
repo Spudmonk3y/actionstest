@@ -2,7 +2,7 @@ name: Pull Request Workflow
 
 on:
   pull_request:
-    types: [ opened, reopened, edited ]
+    types: [ opened, reopened, edited, synchronize ]
 
 jobs:
   job_1:
@@ -21,7 +21,7 @@ jobs:
             ALIAS_PASSWORD: ${{ secrets.ALIAS_PASSWORD }}
           run: |
             # create variables
-            KEYSTORE_FILE=$RUNNER_TEMP/keystore.jks
+            KEYSTORE_FILE=$RUNNER_TEMP/githubactions.jks
             # import data from secret(s)
             echo -n "$KEYSTORE_BASE64" | base64 --decode > $KEYSTORE_FILE
             # ktlint
