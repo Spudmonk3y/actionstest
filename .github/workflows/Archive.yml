@@ -1,12 +1,12 @@
-name: Pull Request Workflow
+name: Archive Workflow
 
 on:
-  pull_request:
-    types: [ opened, reopened, edited, synchronize ]
+  push:
+    branches: [ master ]
 
 jobs:
   job_1:
-      name: Build Pull Request
+      name: Archive File on merge to master
       runs-on: ubuntu-latest
 
       steps:
@@ -29,17 +29,28 @@ jobs:
             # build and sign the app
             ./gradlew assembleRelease -Pandroid.injected.signing.store.file=$KEYSTORE_FILE -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD -Pandroid.injected.signing.key.alias=$ALIAS -Pandroid.injected.signing.key.password=$ALIAS_PASSWORD
 
+        - name: Upload Artifact
+          uses: actions/upload-artifact@v2
+          with:
+            name: DemoAPK
+            path: ./app/build/outputs/apk/release/app-release.apk
+            retention-days: 5
 
   job_2:
-      needs: job_1
-      name: run unit tests
-      runs-on: ubuntu-latest
-
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-
-        - name: Unit Test
-          run: |
-          # run unit tests using whatever command the app is using
-          # ./gradlew jacocoTestReport
+    needs: job_1
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: DemoApk
+      - name: upload artefact to App Center
+        uses: wzieba/AppCenter-Github-Action@v1
+        with:
+          appName: mobilecoe-uq7x/Demo-CICD_Android
+          token: ${{secrets.APP_CENTER_TOKEN}}
+          group: Notify on Release
+          file: app-release.apk
+          notifyTesters: true
+          debug: false
