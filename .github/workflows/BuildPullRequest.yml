@@ -1,0 +1,47 @@
+name: Pull Request Workflow
+
+on:
+  pull_request:
+    types: [ opened, reopened, edited ]
+
+jobs:
+  job_1:
+      name: Build Pull Request 
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+
+        - name: Build
+          env:
+            KEYSTORE_BASE64: ${{ secrets.KEYSTORE_64 }}
+            KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+            ALIAS: ${{ secrets.ALIAS }}
+            ALIAS_PASSWORD: ${{ secrets.ALIAS_PASSWORD }}  
+          run: 
+            # create variables
+            KEYSTORE_FILE=$RUNNER_TEMP/keystore.jks
+            # import data from secret(s)
+            echo -n "$KEYSTORE_BASE64" | base64 --decode --output $KEYSTORE_FILE
+            # ktlint
+            # ./gradlew ktlint
+            # build and sign the app
+            ./gradlew assembleRelease -Pandroid.injected.signing.store.file=$KEYSTORE_FILE -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD -Pandroid.injected.signing.key.alias=$ALIAS -Pandroid.injected.signing.key.password=$ALIAS_PASSWORD
+
+        - name: Remove Secret file
+          run: rm $KEYSTORE_FILE
+
+  job_2:
+      needs: job_1
+      name: run unit tests 
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+
+        - name: Unit Test 
+          run: # run unit tests using whatever command the app is using
+          # ./gradlew jacocoTestReport
+  
