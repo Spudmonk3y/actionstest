@@ -6,7 +6,7 @@ on:
 
 jobs:
   job_1:
-      name: Build Pull Request 
+      name: Build Pull Request
       runs-on: ubuntu-latest
 
       steps:
@@ -18,8 +18,8 @@ jobs:
             KEYSTORE_BASE64: ${{ secrets.KEYSTORE_64 }}
             KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
             ALIAS: ${{ secrets.ALIAS }}
-            ALIAS_PASSWORD: ${{ secrets.ALIAS_PASSWORD }}  
-          run: 
+            ALIAS_PASSWORD: ${{ secrets.ALIAS_PASSWORD }}
+          run:
             # create variables
             KEYSTORE_FILE=$RUNNER_TEMP/keystore.jks
             # import data from secret(s)
@@ -34,14 +34,13 @@ jobs:
 
   job_2:
       needs: job_1
-      name: run unit tests 
+      name: run unit tests
       runs-on: ubuntu-latest
 
       steps:
         - name: Checkout
           uses: actions/checkout@v2
 
-        - name: Unit Test 
+        - name: Unit Test
           run: # run unit tests using whatever command the app is using
           # ./gradlew jacocoTestReport
-  
