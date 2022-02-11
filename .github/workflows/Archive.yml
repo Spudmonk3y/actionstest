@@ -34,23 +34,14 @@ jobs:
           with:
             name: DemoAPK
             path: ./app/build/outputs/apk/release/app-release.apk
-            retention-days: 5
+            retention-days: 1
 
-  job_2:
-    needs: job_1
-    name: Deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download a single artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: DemoApk
-      - name: upload artefact to App Center
-        uses: wzieba/AppCenter-Github-Action@v1
-        with:
-          appName: mobilecoe-uq7x/Demo-CICD_Android
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: Notify on Release
-          file: app-release.apk
-          notifyTesters: true
-          debug: false
+        - name: upload artefact to App Center
+          uses: wzieba/AppCenter-Github-Action@v1
+          with:
+            appName: mobilecoe-uq7x/Demo-CICD_Android
+            token: ${{secrets.APP_CENTER_TOKEN}}
+            group: Notify on Release
+            file: ./app/build/outputs/apk/release/app-release.apk
+            notifyTesters: true
+            debug: false
