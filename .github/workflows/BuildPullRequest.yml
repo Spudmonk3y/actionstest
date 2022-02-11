@@ -23,7 +23,7 @@ jobs:
             # create variables
             KEYSTORE_FILE=$RUNNER_TEMP/keystore.jks
             # import data from secret(s)
-            echo -n "$KEYSTORE_BASE64" | base64 --decode --output $KEYSTORE_FILE
+            echo -n "$KEYSTORE_BASE64" | base64 --decode > $KEYSTORE_FILE
             # ktlint
             # ./gradlew ktlint
             # build and sign the app
