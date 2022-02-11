@@ -15,13 +15,13 @@ jobs:
 
         - name: Build
           env:
-            KEYSTORE_BASE64: ${{ secrets.KEYSTORE_64 }}
-            KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-            ALIAS: ${{ secrets.ALIAS }}
-            ALIAS_PASSWORD: ${{ secrets.ALIAS_PASSWORD }}
+            KEYSTORE_BASE64: ${{ secrets.REPOSITORY_KEYSTORE_64 }}
+            KEYSTORE_PASSWORD: ${{ secrets.REPOSITORY_KEYSTORE_PASSWORD }}
+            ALIAS: ${{ secrets.REPOSITORY_ALIAS }}
+            ALIAS_PASSWORD: ${{ secrets.REPOSITORY_ALIAS_PASSWORD }}
           run: |
             # create variables
-            KEYSTORE_FILE=$RUNNER_TEMP/githubactions.jks
+            KEYSTORE_FILE=$RUNNER_TEMP/keystore.jks
             # import data from secret(s)
             echo -n "$KEYSTORE_BASE64" | base64 --decode > $KEYSTORE_FILE
             # ktlint
